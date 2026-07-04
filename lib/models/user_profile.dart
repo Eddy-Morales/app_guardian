@@ -4,7 +4,7 @@ class UserProfile {
   final String uid;
   final String name;
   final String email;
-  final UserRole role;
+  final String role;
 
   UserProfile({
     required this.uid,
@@ -14,12 +14,12 @@ class UserProfile {
   });
 
   // Mapea el JSON que viene de la tabla pública 'profiles' de Supabase
-  factory UserProfile.fromMap(Map<String, dynamic> map) {
+  factory UserProfile.fromJson(Map<String, dynamic> json) {
     return UserProfile(
-      uid: map['uid'] as String,
-      name: map['name'] ?? 'Usuario',
-      email: map['email'] as String,
-      role: map['role'] == 'admin' ? UserRole.admin : UserRole.client,
+      uid: json['uid'] as String,
+      name: json['name'] ?? 'Usuario',
+      email: json['email'] as String,
+      role: json['role'] ?? 'client',
     );
   }
 }

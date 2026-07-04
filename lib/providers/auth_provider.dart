@@ -3,55 +3,81 @@ import '../models/user_profile.dart';
 import '../repositories/auth_repository.dart';
 
 class AuthProvider extends ChangeNotifier {
-  final AuthRepository _authRepository = AuthRepository();
-  
+  final AuthRepository _authRepository;
+
+  // Inyección del repositorio
+  AuthProvider(this._authRepository);
+
   UserProfile? _currentUserProfile;
   bool _isLoading = false;
 
   UserProfile? get currentUserProfile => _currentUserProfile;
   bool get isLoading => _isLoading;
 
-  // Verifica si hay un token activo guardado en el dispositivo al abrir la app
+  // Verifica sesión existente
   Future<void> checkCurrentUser() async {
     _setLoading(true);
-    _currentUserProfile = await _authRepository.getUserProfile();
+    _currentUserProfile =
+        await _authRepository.getUserProfile();
     _setLoading(false);
   }
 
-  // Acción de registro
+  // Registro
   Future<String?> register({
-    required String email, 
-    required String password, 
+    required String email,
+    required String password,
     required String name,
   }) async {
     _setLoading(true);
+
     try {
-      await _authRepository.signUp(email: email, password: password, name: name);
-      // Como no requiere confirmación de correo, cargamos el perfil inmediatamente
-      _currentUserProfile = await _authRepository.getUserProfile();
-      return null; // Éxito (sin errores)
+      await _authRepository.signUp(
+        email: email,
+        password: password,
+        name: name,
+      );
+
+      _currentUserProfile =
+          await _authRepository.getUserProfile();
+          notifyListeners();
+      return null;
     } catch (e) {
-      return e.toString().replaceAll('Exception: ', '');
+      return e
+          .toString()
+          .replaceAll('Exception: ', '');
     } finally {
       _setLoading(false);
     }
   }
 
-  // Acción de login
-  Future<String?> login({required String email, required String password}) async {
+  // Login
+  Future<String?> login({
+    required String email,
+    required String password,
+  }) async {
     _setLoading(true);
+
     try {
-      await _authRepository.signIn(email: email, password: password);
-      _currentUserProfile = await _authRepository.getUserProfile();
-      return null; // Éxito
+      await _authRepository.signIn(
+        email: email,
+        password: password,
+      );
+
+      _currentUserProfile =
+          await _authRepository.getUserProfile();
+          notifyListeners();
+
+      return null;
     } catch (e) {
-      return e.toString().replaceAll('Exception: ', '');
+      return e
+          .toString()
+          .replaceAll('Exception: ', '');
     } finally {
       _setLoading(false);
     }
   }
 
-  // Acción de logout
+  // Logout
   Future<void> logout() async {
     await _authRepository.signOut();
     _currentUserProfile = null;

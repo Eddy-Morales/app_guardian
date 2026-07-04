@@ -1,6 +1,7 @@
+//import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
+import '../../providers/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -32,6 +33,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text.trim();
     final name = _nameController.text.trim();
 
+    // Diagnóstico 1
+    print("Iniciando sesión para: $email");
+
     String? errorMessage;
 
     if (_isRegisterMode) {
@@ -43,8 +47,22 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (errorMessage != null) {
+      print("Error detectado en Login: $errorMessage");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errorMessage), backgroundColor: Colors.redAccent),
+      );
+      return;
+    }
+    // Diagnóstico 2: Ver que devolvió el repositorio realmente
+    final perfilAlFinal = authProvider.currentUserProfile;
+    print("Perfil obtenido tras login: ${perfilAlFinal?.role}");
+
+    if (perfilAlFinal == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Sesión iniciada en Supabase, pero no se encontró tu perfil en la base de datos.'),
+          backgroundColor: Colors.orange,
+        ),
       );
     }
   }
@@ -121,3 +139,4 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
