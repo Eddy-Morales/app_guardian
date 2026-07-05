@@ -5,6 +5,13 @@ import 'screens/auth/login_screen.dart';
 import 'screens/admin/home_admin_screen.dart';
 import 'screens/client/home_client_screen.dart';
 
+import 'screens/admin/admin_users_screen.dart';
+import 'screens/admin/admin_zones_screen.dart';
+import 'screens/admin/admin_incident_screen.dart'; // El panel intermedio que modificamos antes
+import 'screens/incidents/incident_list_screen.dart';  // La lista con Dismissible
+import 'screens/incidents/incident_form_screen.dart';
+import 'screens/incidents/incident_detail_screen.dart';
+
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
@@ -66,6 +73,17 @@ class MainApp extends StatelessWidget {
       title: 'Guardián Comunitario',
       theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
       home: pantallaDestino,
+    routes: {
+        //'/users': (context) => const UsersScreen(),
+        //'/zones': (context) => const ZonesScreen(),
+        //'/reports': (context) => const ReportsScreen(),
+        
+        // Rutas del flujo de Incidentes que enlazamos previamente
+        '/incidents': (context) => const AdminIncidentScreen(), // Panel secundario de incidentes
+        '/incident-list': (context) => const IncidentListScreen(),
+        '/incident-form': (context) => const IncidentFormScreen(),
+        '/incident-detail': (context) => const IncidentDetailScreen(),
+      },
     );
   }
 }

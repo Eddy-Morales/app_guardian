@@ -38,6 +38,20 @@ class IncidentProvider extends ChangeNotifier {
       _setLoading(false);
     }
   }
+  // Actualizar un incidente
+  Future<String?> updateIncident(IncidentModel incident) async {
+    _setLoading(true);
+
+    try {
+      await _incidentRepository.updateIncident(incident);
+      await loadIncidents();
+      return null;
+    } catch (e) {
+      return e.toString().replaceAll('Exception: ', '');
+    } finally {
+      _setLoading(false);
+    }
+  }
 
   // Eliminar un incidente
   Future<String?> removeIncident(String id) async {

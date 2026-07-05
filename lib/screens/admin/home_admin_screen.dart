@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+
 
 class HomeAdminScreen extends StatefulWidget {
   const HomeAdminScreen({super.key});
@@ -28,7 +28,7 @@ class _HomeAdminScreenState extends State<HomeAdminScreen>{
     Navigator.pushNamed(context, '/reports');
   }
 
-  void _goToInsidentsScreen(){
+  void _goToIncidentsScreen(){
     Navigator.pushNamed(context, '/incidents');
   }
 
@@ -74,7 +74,7 @@ class _HomeAdminScreenState extends State<HomeAdminScreen>{
               title: 'Incidentes',
               subtitle: 'Gestionar incidentes reportados',
               icon: Icons.error,
-              onTap: _goToInsidentsScreen,
+              onTap: _goToIncidentsScreen,
             ),
           ]
         )

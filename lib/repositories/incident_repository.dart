@@ -36,6 +36,16 @@ class IncidentRepository {
       throw Exception('Error al crear incidente: $e');
     }
   }
+  Future<void> updateIncident(IncidentModel incident) async {
+    try {
+      await _supabase
+          .from('incidents')
+          .update(incident.toMap())
+          .eq('id', incident.id);
+    } catch (e) {
+      throw Exception('Error al actualizar incidente: $e');
+    }
+  }
 
   // Eliminar un incidente (Admin o Propietario)
   Future<void> deleteIncident(String id) async {

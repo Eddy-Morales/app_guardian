@@ -2,19 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// Configuracion inicial
-// import 'config/theme.dart';
-// import '/screens/auth/login_screen.dart';
-// import '/screens/admin/home_admin_screen.dart';
 import 'app.dart';
+
 
 // Repositorios 
 import 'repositories/auth_repository.dart';
+import 'repositories/incident_repository.dart';
 
 // Providers
 import 'providers/auth_provider.dart';
-
-
+import 'providers/incident_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +31,9 @@ void main() async {
         Provider<AuthRepository>(
           create: (_) => AuthRepository(Supabase.instance.client),
         ),
+        Provider<IncidentRepository>(
+          create: (_) => IncidentRepository(Supabase.instance.client),
+        ),
         // Providers
         ChangeNotifierProxyProvider<AuthRepository, AuthProvider>(
           create: (context) => AuthProvider(context.read<AuthRepository>()),
@@ -41,6 +41,9 @@ void main() async {
           // Si ya existe uno previo, lo devolvemos; si no, creamos uno nuevo
           return previousAuthProvider ?? AuthProvider(repository);
           },
+        ),
+        ChangeNotifierProvider<IncidentProvider>(
+          create: (context) => IncidentProvider(context.read<IncidentRepository>()),
         ),
       ],
       child: const MainAppWrapper(),
@@ -62,6 +65,7 @@ class _MainAppWrapperState extends State<MainAppWrapper>{
     WidgetsBinding.instance.addPostFrameCallback((_){
       context.read<AuthProvider>().checkCurrentUser();
     });
+
   }
   @override
     Widget build(BuildContext context){
