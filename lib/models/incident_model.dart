@@ -21,14 +21,16 @@ class IncidentModel {
 
   factory IncidentModel.fromMap(Map<String, dynamic> map) {
     return IncidentModel(
-      id: map['id'],
-      userId: map['user_id'],
-      category: map['category'],
-      description: map['description'],
+      id: map['id'] ?? '',
+      userId: map['user_id'] ?? '',
+      category: map['category'] ?? '',
+      description: map['description'] ?? '',
       lat: (map['lat'] as num).toDouble(),
       lng: (map['lng'] as num).toDouble(),
-      photoUrl: map['photo_url'],
-      createdAt: DateTime.parse(map['created_at']),
+      photoUrl: map['photo_url'] as String?,
+      createdAt: map['created_at'] != null
+          ? DateTime.parse(map['created_at'])
+          : DateTime.now(),
     );
   }
 

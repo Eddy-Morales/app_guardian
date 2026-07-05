@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:guardia_app/screens/users/user_list_screen.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
@@ -11,6 +12,7 @@ import 'screens/admin/admin_incident_screen.dart'; // El panel intermedio que mo
 import 'screens/incidents/incident_list_screen.dart';  // La lista con Dismissible
 import 'screens/incidents/incident_form_screen.dart';
 import 'screens/incidents/incident_detail_screen.dart';
+import 'screens/users/profile_screen.dart';
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
@@ -83,6 +85,11 @@ class MainApp extends StatelessWidget {
         '/incident-list': (context) => const IncidentListScreen(),
         '/incident-form': (context) => const IncidentFormScreen(),
         '/incident-detail': (context) => const IncidentDetailScreen(),
+        '/user-list': (context) => const UserListScreen(),
+        '/users':(context)=> const AdminUserScreen(),
+        '/user-profile': (context) => const ProfileScreen(),
+        //'/zone-list': (context) => const ZonesListScreen(),
+       // '/zone-form': (context) => const ZonesFormScreen(), // Aquí podrías tener
       },
     );
   }

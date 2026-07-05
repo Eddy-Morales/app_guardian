@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/incident_model.dart';
 import '../repositories/incident_repository.dart';
+import 'dart:io';
 
 class IncidentProvider extends ChangeNotifier {
   final IncidentRepository _incidentRepository;
@@ -26,10 +27,10 @@ class IncidentProvider extends ChangeNotifier {
   }
 
   // Crear un incidente
-  Future<String?> addIncident(IncidentModel incident) async {
+  Future<String?> addIncident(IncidentModel incident, File? image) async {
     _setLoading(true);
     try {
-      await _incidentRepository.createIncident(incident);
+      await _incidentRepository.createIncident(incident,image);
       await loadIncidents(); // Recargamos la lista para traer el incidente con su ID generado
       return null;
     } catch (e) {
@@ -39,11 +40,12 @@ class IncidentProvider extends ChangeNotifier {
     }
   }
   // Actualizar un incidente
-  Future<String?> updateIncident(IncidentModel incident) async {
+  Future<String?> updateIncident(IncidentModel incident, File? image,) async {
+
     _setLoading(true);
 
     try {
-      await _incidentRepository.updateIncident(incident);
+      await _incidentRepository.updateIncident(incident,image);
       await loadIncidents();
       return null;
     } catch (e) {

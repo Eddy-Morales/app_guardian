@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -33,6 +37,10 @@ class _IncidentFormScreenState
 
   IncidentModel? _incident;
 
+  File? _image;
+
+  final ImagePicker _picker = ImagePicker();
+
   final List<String> categories = [
     'Robo',
     'Accidente',
@@ -47,20 +55,14 @@ class _IncidentFormScreenState
     super.didChangeDependencies();
 
     if (_incident == null) {
-
       final args =
-          ModalRoute.of(context)
-              ?.settings
-              .arguments;
+          ModalRoute.of(context)?.settings.arguments;
 
-      if (args != null &&
-          args is IncidentModel) {
-
+      if (args != null && args is IncidentModel) {
         _incident = args;
         _isEditing = true;
 
-        _selectedCategory =
-            _incident!.category;
+        _selectedCategory = _incident!.category;
 
         _descriptionController.text =
             _incident!.description;
@@ -70,8 +72,13 @@ class _IncidentFormScreenState
 
         _lngController.text =
             _incident!.lng.toString();
+          
       }
+
     }
+    if (!_isEditing) {
+  _getCurrentLocation();
+}
   }
 
   @override
@@ -80,6 +87,76 @@ class _IncidentFormScreenState
     _latController.dispose();
     _lngController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final XFile? photo = await _picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 75,
+    );
+
+    if (photo != null) {
+      setState(() {
+        _image = File(photo.path);
+      });
+    }
+  }
+
+  Future<void> _getCurrentLocation() async {
+    bool serviceEnabled =
+        await Geolocator.isLocationServiceEnabled();
+
+    if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+              'Active el GPS del dispositivo'),
+        ),
+      );
+      return;
+    }
+
+    LocationPermission permission =
+        await Geolocator.checkPermission();
+
+    if (permission ==
+        LocationPermission.denied) {
+      permission =
+          await Geolocator.requestPermission();
+    }
+
+    if (permission ==
+            LocationPermission.denied ||
+        permission ==
+            LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+              'Permiso de ubicación denegado'),
+        ),
+      );
+      return;
+    }
+
+    Position position =
+        await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    setState(() {
+      _latController.text =
+          position.latitude.toString();
+
+      _lngController.text =
+          position.longitude.toString();
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content:
+            Text("Ubicación obtenida correctamente"),
+      ),
+    );
   }
 
   Future<void> _saveIncident() async {
@@ -98,36 +175,39 @@ class _IncidentFormScreenState
 
     final incident = IncidentModel(
       id: _incident?.id ?? '',
-      userId: _incident?.userId ??
-          currentUser.id,
+      userId:
+          _incident?.userId ?? currentUser.id,
       category: _selectedCategory!,
       description:
           _descriptionController.text.trim(),
-      lat: double.parse(
-          _latController.text),
-      lng: double.parse(
-          _lngController.text),
-      photoUrl:
-          _incident?.photoUrl,
+      lat: double.parse(_latController.text),
+      lng: double.parse(_lngController.text),
+
+      // Luego aquí guardaremos la URL
+      photoUrl: _incident?.photoUrl,
+
       createdAt:
           _incident?.createdAt ??
-          DateTime.now(),
+              DateTime.now(),
     );
 
     String? error;
 
     if (_isEditing) {
-      error = await provider
-          .updateIncident(incident);
-    } else {
-      error = await provider
-          .addIncident(incident);
-    }
+  error = await provider.updateIncident(
+    incident,
+    _image,
+  );
+} else {
+  error = await provider.addIncident(
+    incident,
+    _image,
+  );
+}
 
     if (!mounted) return;
 
     if (error == null) {
-
       ScaffoldMessenger.of(context)
           .showSnackBar(
         SnackBar(
@@ -175,21 +255,23 @@ class _IncidentFormScreenState
           key: _formKey,
 
           child: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.stretch,
+
             children: [
 
               DropdownButtonFormField<String>(
-                value:
-                    _selectedCategory,
+                value: _selectedCategory,
                 decoration:
                     const InputDecoration(
-                  labelText:
-                      'Categoría',
+                  labelText: 'Categoría',
                   border:
                       OutlineInputBorder(),
                 ),
                 items: categories
                     .map(
-                      (e) => DropdownMenuItem(
+                      (e) =>
+                          DropdownMenuItem(
                         value: e,
                         child: Text(e),
                       ),
@@ -209,8 +291,7 @@ class _IncidentFormScreenState
                 },
               ),
 
-              const SizedBox(
-                  height: 16),
+              const SizedBox(height: 16),
 
               TextFormField(
                 controller:
@@ -234,64 +315,134 @@ class _IncidentFormScreenState
                 },
               ),
 
-              const SizedBox(
-                  height: 16),
+              const SizedBox(height: 25),
+
+              const Text(
+                "Fotografía",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight:
+                      FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              Container(
+                height: 220,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.grey,
+                  ),
+                  borderRadius:
+                      BorderRadius.circular(10),
+                ),
+               child: _image != null
+    ? ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Image.file(
+          _image!,
+          fit: BoxFit.cover,
+          width: double.infinity,
+        ),
+      )
+    : _incident?.photoUrl != null
+        ? ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.network(
+              _incident!.photoUrl!,
+              fit: BoxFit.cover,
+              width: double.infinity,
+            ),
+          )
+        : const Center(
+            child: Icon(
+              Icons.camera_alt,
+              size: 80,
+              color: Colors.grey,
+            ),
+          ),),
+
+              const SizedBox(height: 10),
+
+              ElevatedButton.icon(
+                onPressed: _pickImage,
+                icon:
+                    const Icon(Icons.camera_alt),
+                label:
+                    const Text("Tomar fotografía"),
+              ),
+
+              const SizedBox(height: 25),
+
+              const Text(
+                "Ubicación",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight:
+                      FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 10),
 
               TextFormField(
                 controller:
                     _latController,
-                keyboardType:
-                    TextInputType.number,
+                readOnly: true,
                 decoration:
                     const InputDecoration(
-                  labelText:
-                      'Latitud',
+                  labelText: "Latitud",
                   border:
                       OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null ||
-                      value
-                          .isEmpty) {
-                    return 'Ingrese la latitud';
+                      value.isEmpty) {
+                    return "Obtenga la ubicación";
                   }
                   return null;
                 },
               ),
 
-              const SizedBox(
-                  height: 16),
+              const SizedBox(height: 16),
 
               TextFormField(
                 controller:
                     _lngController,
-                keyboardType:
-                    TextInputType.number,
+                readOnly: true,
                 decoration:
                     const InputDecoration(
-                  labelText:
-                      'Longitud',
+                  labelText: "Longitud",
                   border:
                       OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null ||
-                      value
-                          .isEmpty) {
-                    return 'Ingrese la longitud';
+                      value.isEmpty) {
+                    return "Obtenga la ubicación";
                   }
                   return null;
                 },
               ),
 
-              const SizedBox(
-                  height: 30),
+              const SizedBox(height: 10),
+
+              ElevatedButton.icon(
+                onPressed:
+                    _getCurrentLocation,
+                icon:
+                    const Icon(Icons.my_location),
+                label: const Text(
+                  "Usar mi ubicación actual",
+                ),
+              ),
+
+              const SizedBox(height: 30),
 
               SizedBox(
-                width:
-                    double.infinity,
-                child:
-                    ElevatedButton(
+                height: 50,
+                child: ElevatedButton(
                   onPressed:
                       provider.isLoading
                           ? null
@@ -301,8 +452,8 @@ class _IncidentFormScreenState
                           ? const CircularProgressIndicator()
                           : Text(
                               _isEditing
-                                  ? 'Actualizar'
-                                  : 'Registrar',
+                                  ? "Actualizar"
+                                  : "Registrar",
                             ),
                 ),
               ),

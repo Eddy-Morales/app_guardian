@@ -30,6 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  image_picker: ^1.1.2     # Acceso a la cámara del iPhone
+  geolocator: ^13.0.0       # Captura automática de coordenadas GPS
+  connectivity_plus: ^6.0.3 # Detecta si hay internet para el modo offline
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -40,6 +43,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+ 
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

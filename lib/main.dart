@@ -8,10 +8,12 @@ import 'app.dart';
 // Repositorios 
 import 'repositories/auth_repository.dart';
 import 'repositories/incident_repository.dart';
+import 'repositories/user_repository.dart';
 
 // Providers
 import 'providers/auth_provider.dart';
 import 'providers/incident_provider.dart';
+import 'providers/user_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,10 +32,12 @@ void main() async {
         // Repositorios
         Provider<AuthRepository>(
           create: (_) => AuthRepository(Supabase.instance.client),
+
         ),
         Provider<IncidentRepository>(
           create: (_) => IncidentRepository(Supabase.instance.client),
         ),
+        Provider<UserRepository>(create: (_) => UserRepository(Supabase.instance.client)),
         // Providers
         ChangeNotifierProxyProvider<AuthRepository, AuthProvider>(
           create: (context) => AuthProvider(context.read<AuthRepository>()),
@@ -45,6 +49,7 @@ void main() async {
         ChangeNotifierProvider<IncidentProvider>(
           create: (context) => IncidentProvider(context.read<IncidentRepository>()),
         ),
+        ChangeNotifierProvider<UserProvider>(create:(context) => UserProvider(context.read<UserRepository>()))
       ],
       child: const MainAppWrapper(),
     ),

@@ -1,7 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/incident_model.dart';
-
-
+import 'dart:io';
 class IncidentRepository {
   final SupabaseClient _supabase;
 
@@ -29,23 +28,75 @@ class IncidentRepository {
   }
 
   // Crear un nuevo incidente
-  Future<void> createIncident(IncidentModel incident) async {
-    try {
-      await _supabase.from('incidents').insert(incident.toMap());
-    } catch (e) {
-      throw Exception('Error al crear incidente: $e');
-    }
-  }
-  Future<void> updateIncident(IncidentModel incident) async {
-    try {
-      await _supabase
+  Future<void> createIncident(
+  IncidentModel incident,
+  File? image,
+) async {
+  try {
+    String? imageUrl;
+
+    if (image != null) {
+      final fileName =
+          '${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+      final path = 'incidents/$fileName';
+
+      await _supabase.storage
           .from('incidents')
-          .update(incident.toMap())
-          .eq('id', incident.id);
-    } catch (e) {
-      throw Exception('Error al actualizar incidente: $e');
+          .upload(path, image);
+
+      imageUrl = _supabase.storage
+          .from('incidents')
+          .getPublicUrl(path);
     }
+
+    final data = incident.toMap();
+
+    data['photo_url'] = imageUrl;
+
+    await _supabase
+        .from('incidents')
+        .insert(data);
+
+  } catch (e) {
+    throw Exception('Error al crear incidente: $e');
   }
+}
+  Future<void> updateIncident(
+  IncidentModel incident,
+  File? image,
+) async {
+  try {
+    String? imageUrl = incident.photoUrl;
+
+    if (image != null) {
+      final fileName =
+          '${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+      final path = 'incidents/$fileName';
+
+      await _supabase.storage
+          .from('incidents')
+          .upload(path, image);
+
+      imageUrl = _supabase.storage
+          .from('incidents')
+          .getPublicUrl(path);
+    }
+
+    final data = incident.toMap();
+
+    data['photo_url'] = imageUrl;
+
+    await _supabase
+        .from('incidents')
+        .update(data)
+        .eq('id', incident.id);
+
+  } catch (e) {
+    throw Exception('Error al actualizar incidente: $e');
+  }
+}
 
   // Eliminar un incidente (Admin o Propietario)
   Future<void> deleteIncident(String id) async {
