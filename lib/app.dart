@@ -13,6 +13,8 @@ import 'screens/incidents/incident_list_screen.dart';  // La lista con Dismissib
 import 'screens/incidents/incident_form_screen.dart';
 import 'screens/incidents/incident_detail_screen.dart';
 import 'screens/users/profile_screen.dart';
+import 'screens/zones/zone_form_screen.dart';
+import 'screens/zones/zone_list_screen.dart';
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
@@ -88,8 +90,9 @@ class MainApp extends StatelessWidget {
         '/user-list': (context) => const UserListScreen(),
         '/users':(context)=> const AdminUserScreen(),
         '/user-profile': (context) => const ProfileScreen(),
-        //'/zone-list': (context) => const ZonesListScreen(),
-       // '/zone-form': (context) => const ZonesFormScreen(), // Aquí podrías tener
+        '/zone-list': (context) => const ZoneListScreen(),
+        '/zone-form': (context) => const ZoneFormScreen(), // Aquí podrías tener
+        '/zones': (context) => const AdminZonesScreen()
       },
     );
   }

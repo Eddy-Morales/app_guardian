@@ -9,11 +9,14 @@ import 'app.dart';
 import 'repositories/auth_repository.dart';
 import 'repositories/incident_repository.dart';
 import 'repositories/user_repository.dart';
+import 'repositories/zone_repository.dart'; 
+
 
 // Providers
 import 'providers/auth_provider.dart';
 import 'providers/incident_provider.dart';
 import 'providers/user_provider.dart';
+import 'providers/zone_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,6 +41,7 @@ void main() async {
           create: (_) => IncidentRepository(Supabase.instance.client),
         ),
         Provider<UserRepository>(create: (_) => UserRepository(Supabase.instance.client)),
+        Provider<ZoneRepository>(create: (_) => ZoneRepository(Supabase.instance.client)),
         // Providers
         ChangeNotifierProxyProvider<AuthRepository, AuthProvider>(
           create: (context) => AuthProvider(context.read<AuthRepository>()),
@@ -49,7 +53,8 @@ void main() async {
         ChangeNotifierProvider<IncidentProvider>(
           create: (context) => IncidentProvider(context.read<IncidentRepository>()),
         ),
-        ChangeNotifierProvider<UserProvider>(create:(context) => UserProvider(context.read<UserRepository>()))
+        ChangeNotifierProvider<UserProvider>(create:(context) => UserProvider(context.read<UserRepository>())),
+        ChangeNotifierProvider<ZoneProvider>(create:(context) => ZoneProvider(context.read<ZoneRepository>()))
       ],
       child: const MainAppWrapper(),
     ),
