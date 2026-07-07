@@ -10,20 +10,45 @@ class IncidentProvider extends ChangeNotifier {
 
   List<IncidentModel> _incidents = [];
   bool _isLoading = false;
+  String? _errorMessage;
+  // Filtros activos (se conservan para poder refrescar con "loadIncidents")
+  String? _categoryFilter;
+  String _searchText = '';
 
   List<IncidentModel> get incidents => _incidents;
   bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  String? get categoryFilter => _categoryFilter;
+  String get searchText => _searchText;
 
   // Cargar incidentes (filtra por userId si se le pasa como parámetro)
   Future<void> loadIncidents({String? userId}) async {
     _setLoading(true);
     try {
-      _incidents = await _incidentRepository.getIncidents(userId: userId);
+      _incidents = await _incidentRepository.getIncidents(userId: userId, category: _categoryFilter, searchText: _searchText);
+      _errorMessage = null;
     } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
       debugPrint(e.toString());
     } finally {
       _setLoading(false);
     }
+  }
+
+  /// Aplica un filtro por categoría ('' o null = sin filtro) y recarga.
+  Future<void> filterByCategory(String? category, {String? userId}) async {
+    _categoryFilter = (category == null || category.isEmpty) ? null : category;
+    await loadIncidents(userId: userId);
+  }
+  /// Búsqueda de texto libre por título/descripción.
+  Future<void> search(String text, {String? userId}) async {
+    _searchText = text;
+    await loadIncidents(userId: userId);
+  }
+
+  void clearFilters() {
+    _categoryFilter = null;
+    _searchText = '';
   }
 
   // Crear un incidente

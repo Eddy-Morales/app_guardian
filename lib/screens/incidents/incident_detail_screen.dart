@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '/models/incident_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../config/theme.dart';
+import '../../utils/category_utils.dart';
+
 
 class IncidentDetailScreen extends StatelessWidget {
 
@@ -27,6 +30,7 @@ class IncidentDetailScreen extends StatelessWidget {
 
     final canEdit =
         currentUserId == incident.userId;
+    final color = CategoryUtils.colorOf(incident.category);
 
     
 
@@ -38,6 +42,7 @@ class IncidentDetailScreen extends StatelessWidget {
       ),
       floatingActionButton: canEdit
           ? FloatingActionButton(
+            backgroundColor: AppColors.darkBlue,
             child: const Icon(Icons.edit),
             onPressed:(){
               Navigator.pushNamed(
@@ -78,6 +83,7 @@ class IncidentDetailScreen extends StatelessWidget {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
+                color: Colors.grey,
               ),
             ),
 
@@ -85,6 +91,7 @@ class IncidentDetailScreen extends StatelessWidget {
               incident.category,
               style: const TextStyle(
                 fontSize: 16,
+                color: Colors.black,
               ),
             ),
 
@@ -96,11 +103,15 @@ class IncidentDetailScreen extends StatelessWidget {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
+                color: Colors.grey,
               ),
             ),
 
             Text(
               incident.description,
+              style: const TextStyle(
+                color: Colors.black, // Texto negro
+              ),
             ),
 
             const SizedBox(height: 20),
@@ -111,11 +122,15 @@ class IncidentDetailScreen extends StatelessWidget {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
+                color: Colors.grey,
               ),
             ),
 
             Text(
               '${incident.createdAt.day}/${incident.createdAt.month}/${incident.createdAt.year}',
+              style: const TextStyle(
+                color: Colors.black, // Texto negro
+              ),
             ),
 
             const SizedBox(height: 20),
@@ -125,11 +140,15 @@ class IncidentDetailScreen extends StatelessWidget {
               'Latitud',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
+                color: Colors.grey,
               ),
             ),
 
             Text(
               incident.lat.toString(),
+              style: const TextStyle(
+                color: Colors.black, // Texto negro
+              ),              
             ),
 
             const SizedBox(height: 10),
@@ -139,12 +158,34 @@ class IncidentDetailScreen extends StatelessWidget {
               'Longitud',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
+                color: Colors.grey,
               ),
             ),
 
             Text(
               incident.lng.toString(),
+              style: const TextStyle(
+                color: Colors.black, // Texto negro
+              ),
             ),
+
+            const SizedBox(height: 10),
+            const Text(
+              'Direccion aproximada',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+              ),
+            ),
+
+            Text(
+              incident.address ?? 'No disponible',
+              style: TextStyle(
+                fontSize: 14,
+                color: color, // Color asociado a la categoría
+              ),
+            ),
+
           ],
         ),
       ),

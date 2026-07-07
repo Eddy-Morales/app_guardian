@@ -7,6 +7,8 @@ class IncidentModel {
   final double lng;
   final String? photoUrl;
   final DateTime createdAt;
+  final String? address;
+
 
   IncidentModel({
     required this.id,
@@ -17,6 +19,7 @@ class IncidentModel {
     required this.lng,
     this.photoUrl,
     required this.createdAt,
+    this.address,
   });
 
   factory IncidentModel.fromMap(Map<String, dynamic> map) {
@@ -27,6 +30,7 @@ class IncidentModel {
       description: map['description'] ?? '',
       lat: (map['lat'] as num).toDouble(),
       lng: (map['lng'] as num).toDouble(),
+      address: map['address'] as String?,
       photoUrl: map['photo_url'] as String?,
       createdAt: map['created_at'] != null
           ? DateTime.parse(map['created_at'])
@@ -42,6 +46,7 @@ class IncidentModel {
       'lat': lat,
       'lng': lng,
       'photo_url': photoUrl,
+      'address': address,
     };
   }
 }

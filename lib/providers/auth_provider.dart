@@ -77,6 +77,19 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  // Recuperar contraseña
+  Future<String?> resetPassword(String email) async {
+    _setLoading(true);
+    try {
+      await _authRepository.resetPasswordForEmail(email);
+      return null;
+    } catch (e) {
+      return e.toString().replaceAll('Exception: ', '');
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   // Logout
   Future<void> logout() async {
     await _authRepository.signOut();

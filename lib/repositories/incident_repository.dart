@@ -9,13 +9,25 @@ class IncidentRepository {
 
 
   // Obtener incidentes (Global para admin o filtrado para cliente)
-  Future<List<IncidentModel>> getIncidents({String? userId}) async {
+  Future<List<IncidentModel>> getIncidents({String? userId, String? category, String? searchText}) async {
     try {
       var query = _supabase.from('incidents').select();
       
       // Si recibimos un userId, filtramos la consulta
       if (userId != null) {
         query = query.eq('user_id', userId);
+      }
+
+      // Si recibimos un category, filtramos la consulta
+      if (category != null && category.isNotEmpty) {
+        query = query.eq('category', category);
+      }
+
+      // Si recibimos un searchText, filtramos la consulta
+      if (searchText != null && searchText.isNotEmpty) {
+        query = query.or(
+          'title.ilike.%$searchText%,description.ilike.%$searchText%',
+        );
       }
       
       // Ordenamos para que los más recientes salgan primero

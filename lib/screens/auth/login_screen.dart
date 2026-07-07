@@ -1,8 +1,13 @@
-//import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../config/theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/custom_text_field.dart';
+import 'register_screen.dart';
+import 'forgot_password_screen.dart';
 
+/// Pantalla de inicio de sesión. Responsabilidad única: capturar
+/// credenciales y delegar la autenticación al AuthProvider.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -12,57 +17,31 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isRegisterMode = false;
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  void _submitForm() async {
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     final authProvider = context.read<AuthProvider>();
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-    final name = _nameController.text.trim();
-
-    // Diagnóstico 1
-    print("Iniciando sesión para: $email");
-
-    String? errorMessage;
-
-    if (_isRegisterMode) {
-      errorMessage = await authProvider.register(email: email, password: password, name: name);
-    } else {
-      errorMessage = await authProvider.login(email: email, password: password);
-    }
+    final error = await authProvider.login(
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+    );
 
     if (!mounted) return;
 
-    if (errorMessage != null) {
-      print("Error detectado en Login: $errorMessage");
+    if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage), backgroundColor: Colors.redAccent),
-      );
-      return;
-    }
-    // Diagnóstico 2: Ver que devolvió el repositorio realmente
-    final perfilAlFinal = authProvider.currentUserProfile;
-    print("Perfil obtenido tras login: ${perfilAlFinal?.role}");
-
-    if (perfilAlFinal == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Sesión iniciada en Supabase, pero no se encontró tu perfil en la base de datos.'),
-          backgroundColor: Colors.orange,
-        ),
+        SnackBar(content: Text(error), backgroundColor: AppColors.alertRed),
       );
     }
   }
@@ -72,66 +51,85 @@ class _LoginScreenState extends State<LoginScreen> {
     final authProvider = context.watch<AuthProvider>();
 
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  _isRegisterMode ? 'Crear Cuenta' : 'Guardián Comunitario',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.blueAccent),
-                ),
-                const SizedBox(height: 30),
-                
-                if (_isRegisterMode) ...[
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: const InputDecoration(labelText: 'Nombre Completo', border: OutlineInputBorder()),
-                    validator: (val) => val == null || val.isEmpty ? 'Por favor ingresa tu nombre' : null,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Icon(Icons.shield, size: 72, color: AppColors.darkBlue),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Guardian',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.darkBlue,
+                    ),
+                  ),
+                  const Text(
+                    'Reportes comunitarios de seguridad',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppColors.gray),
+                  ),
+                  const SizedBox(height: 32),
+                  CustomTextField(
+                    controller: _emailController,
+                    label: 'Correo electrónico',
+                    icon: Icons.email_outlined,
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (val) => val == null || !val.contains('@')
+                        ? 'Ingresa un correo válido'
+                        : null,
                   ),
                   const SizedBox(height: 16),
-                ],
-                
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(labelText: 'Correo Electrónico', border: OutlineInputBorder()),
-                  validator: (val) => val == null || !val.contains('@') ? 'Ingresa un correo válido' : null,
-                ),
-                const SizedBox(height: 16),
-                
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Contraseña', border: OutlineInputBorder()),
-                  validator: (val) => val == null || val.length < 6 ? 'La contraseña debe tener al menos 6 caracteres' : null,
-                ),
-                const SizedBox(height: 24),
-                
-                authProvider.isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : ElevatedButton(
-                        onPressed: _submitForm,
-                        style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-                        child: Text(_isRegisterMode ? 'Registrarse' : 'Iniciar Sesión'),
+                  CustomTextField(
+                    controller: _passwordController,
+                    label: 'Contraseña',
+                    icon: Icons.lock_outline,
+                    obscureText: _obscurePassword,
+                    suffixIcon: IconButton(
+                      icon: Icon(_obscurePassword
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
+                    ),
+                    validator: (val) => val == null || val.length < 6
+                        ? 'La contraseña debe tener al menos 6 caracteres'
+                        : null,
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
                       ),
-                const SizedBox(height: 12),
-                
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _isRegisterMode = !_isRegisterMode;
-                      _formKey.currentState?.reset();
-                    });
-                  },
-                  child: Text(_isRegisterMode ? '¿Ya tienes cuenta? Ingresa aquí' : '¿No tienes cuenta? Regístrate aquí'),
-                ),
-              ],
+                      child: const Text('¿Olvidaste tu contraseña?'),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  authProvider.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : FilledButton(
+                          onPressed: _submit,
+                          child: const Text('Iniciar sesión'),
+                        ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                    ),
+                    child: const Text('¿No tienes cuenta? Regístrate aquí'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -139,4 +137,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-

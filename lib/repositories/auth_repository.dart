@@ -62,4 +62,15 @@ class AuthRepository {
   Future<void> signOut() async {
     await _supabase.auth.signOut();
   }
+
+
+  // Recuperar contraseña: Supabase envía un correo con un enlace mágico
+  // que permite al usuario definir una nueva contraseña.
+  Future<void> resetPasswordForEmail(String email) async {
+    try {
+      await _supabase.auth.resetPasswordForEmail(email);
+    } catch (e) {
+      throw Exception('Error al enviar el correo de recuperación: $e');
+    }
+  }
 }

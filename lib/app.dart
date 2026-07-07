@@ -12,6 +12,7 @@ import 'screens/admin/admin_incident_screen.dart'; // El panel intermedio que mo
 import 'screens/incidents/incident_list_screen.dart';  // La lista con Dismissible
 import 'screens/incidents/incident_form_screen.dart';
 import 'screens/incidents/incident_detail_screen.dart';
+
 import 'screens/users/profile_screen.dart';
 import 'screens/zones/zone_form_screen.dart';
 import 'screens/zones/zone_list_screen.dart';
@@ -75,9 +76,26 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Guardián Comunitario',
-      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
+      theme: ThemeData(
+        primaryColor: Colors.blue[900], // Azul oscuro
+        scaffoldBackgroundColor: Colors.white, // Fondo blanco
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.black), // Texto negro
+          bodyMedium: TextStyle(color: Colors.grey), // Texto gris
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue[900], // Azul oscuro para botones
+            foregroundColor: Colors.white, // Texto blanco en botones
+          ),
+        ),
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.blue[900], // Azul oscuro para la AppBar
+          foregroundColor: Colors.white, // Texto blanco en la AppBar
+        ),
+      ),
       home: pantallaDestino,
-    routes: {
+      routes: {
         //'/users': (context) => const UsersScreen(),
         //'/zones': (context) => const ZonesScreen(),
         //'/reports': (context) => const ReportsScreen(),
