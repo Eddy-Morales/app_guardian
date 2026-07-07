@@ -60,7 +60,23 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Icon(Icons.shield, size: 72, color: AppColors.darkBlue),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.asset(
+                      'assets/logo.png',
+                      width: 96,
+                      height: 96,
+                      fit: BoxFit.cover,
+                      // Si el asset no se encuentra (ej. falta ejecutar
+                      // `flutter pub get` tras agregar la imagen), mostramos
+                      // el ícono anterior como respaldo en vez de romper la UI.
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.shield,
+                        size: 72,
+                        color: AppColors.darkBlue,
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 12),
                   const Text(
                     'Guardian',

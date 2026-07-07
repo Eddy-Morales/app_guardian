@@ -3,6 +3,7 @@ import '/models/incident_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/theme.dart';
 import '../../utils/category_utils.dart';
+import '../../widgets/comments_section.dart';
 
 
 class IncidentDetailScreen extends StatelessWidget {
@@ -185,6 +186,13 @@ class IncidentDetailScreen extends StatelessWidget {
                 color: color, // Color asociado a la categoría
               ),
             ),
+
+            const SizedBox(height: 24),
+            const Divider(),
+            const SizedBox(height: 8),
+
+            // Comentarios en tiempo real del incidente
+            CommentsSection(incidentId: incident.id),
 
           ],
         ),

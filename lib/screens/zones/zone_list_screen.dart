@@ -61,7 +61,9 @@ class _ZoneListScreenState extends State<ZoneListScreen> {
                         "Incidentes: ${zone.incidentCount}"),
                     leading: CircleAvatar(
                       backgroundColor: _riskColor(zone.riskLevel),
-                      child: Text(zone.riskLevel[0]),
+                      child: Text(
+                        zone.riskLevel.isNotEmpty ? zone.riskLevel[0] : '?',
+                      ),
                     ),
                     trailing: PopupMenuButton(
                       itemBuilder: (_) => [
