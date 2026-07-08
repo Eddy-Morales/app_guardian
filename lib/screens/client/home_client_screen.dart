@@ -24,6 +24,10 @@ class _HomeClientScreenState extends State<HomeClientScreen>{
     Navigator.pushNamed(context, '/incidents');
   }
 
+  void _goToMapScreen(){
+    Navigator.pushNamed(context, '/maps');
+  }
+
 
   
   @override
@@ -55,6 +59,12 @@ class _HomeClientScreenState extends State<HomeClientScreen>{
               subtitle: 'Gestionar incidentes reportados',
               icon: Icons.error,
               onTap: _goToInsidentsScreen,
+            ),
+            _DashboardAction(
+              title: 'Mapa',
+              subtitle: 'Ver incidentes reportados en el mapa',
+              icon: Icons.map,
+              onTap: _goToMapScreen,
             ),
           ]
         )

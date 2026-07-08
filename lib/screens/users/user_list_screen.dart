@@ -420,15 +420,6 @@ Future<void> _changeBlocked(
                                   _changeBlocked(
                                       user);
                                   break;
-
-                                case 'profile':
-                                  Navigator.pushNamed(
-                                    context,
-                                    '/profile',
-                                    arguments: user,
-                                  );
-                                  break;
-
                               }
 
                             },
@@ -451,14 +442,6 @@ Future<void> _changeBlocked(
                                       : 'Bloquear',
                                 ),
                               ),
-
-                              const PopupMenuItem(
-                                value: 'profile',
-                                child: Text(
-                                  'Ver perfil',
-                                ),
-                              ),
-
                             ],
                           ),
                         ),

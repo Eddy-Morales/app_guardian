@@ -32,6 +32,10 @@ class _HomeAdminScreenState extends State<HomeAdminScreen>{
     Navigator.pushNamed(context, '/incidents');
   }
 
+  void _goToMapScreen(){
+    Navigator.pushNamed(context, '/maps');
+  }
+
 
   
   @override
@@ -75,6 +79,12 @@ class _HomeAdminScreenState extends State<HomeAdminScreen>{
               subtitle: 'Gestionar incidentes reportados',
               icon: Icons.error,
               onTap: _goToIncidentsScreen,
+            ),
+            _DashboardAction(
+              title: 'Mapa',
+              subtitle: 'Ver incidentes reportados en el mapa',
+              icon: Icons.map,
+              onTap: _goToMapScreen,
             ),
           ]
         )

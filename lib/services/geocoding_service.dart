@@ -68,7 +68,7 @@ class GeocodingException implements Exception {
 ///   que interpretar códigos internos de HTTP o de la API.
 class GeocodingService {
   /// Reemplaza por tu clave real de Google Cloud (Geocoding API habilitada).
-  static const String _apiKey = 'YOUR_GOOGLE_MAPS_API_KEY';
+  static const String _apiKey = 'AIzaSyBvjIfVNOYFGJPh9besuL_kOULFcFzts8M';
 
   static const String _baseUrl =
       'https://maps.googleapis.com/maps/api/geocode/json';

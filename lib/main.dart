@@ -17,6 +17,9 @@ import 'providers/incident_provider.dart';
 import 'providers/user_provider.dart';
 import 'providers/zone_provider.dart';
 import 'providers/comment_provider.dart';
+// Pantalla para restablecer contraseña
+import 'navigation/nav_keys.dart';
+import 'screens/auth/reset_password_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -90,6 +93,16 @@ class _MainAppWrapperState extends State<MainAppWrapper> {
   @override
   void initState() {
     super.initState();
+    // Escucha el evento de recuperación de contraseña disparado por
+    // el deep link (guardianapp://reset-callback/) cuando el usuario
+    // toca el enlace del correo.
+    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      if (data.event == AuthChangeEvent.passwordRecovery) {
+        rootNavigatorKey.currentState?.push(
+          MaterialPageRoute(builder: (_) => const ResetPasswordScreen()),
+        );
+      }
+    });
     // Revisa de inmediato si el usuario ya tenia la sesion abierta
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AuthProvider>().checkCurrentUser();

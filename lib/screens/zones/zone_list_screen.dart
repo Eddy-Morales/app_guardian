@@ -58,7 +58,11 @@ class _ZoneListScreenState extends State<ZoneListScreen> {
                   child: ListTile(
                     title: Text(zone.name),
                     subtitle: Text(
-                        "Incidentes: ${zone.incidentCount}"),
+                      zone.centerLat != null
+                          ? "Incidentes: ${zone.incidentCount} · "
+                            "Radio: ${zone.radiusKm?.toStringAsFixed(1) ?? '-'} km"
+                          : "Incidentes: ${zone.incidentCount} · Sin ubicación definida",
+                    ),
                     leading: CircleAvatar(
                       backgroundColor: _riskColor(zone.riskLevel),
                       child: Text(

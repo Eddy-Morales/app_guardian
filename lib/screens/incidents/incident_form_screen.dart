@@ -12,6 +12,9 @@ import '../../services/geocoding_service.dart';
 import '../../services/location_service.dart';
 import '../../widgets/custom_text_field.dart';
 
+import '../../models/zone_model.dart';
+import '../../providers/zone_provider.dart';
+import '../../utils/geo_utils.dart';
 
 class IncidentFormScreen extends StatefulWidget {
   const IncidentFormScreen({super.key});
@@ -39,6 +42,7 @@ class _IncidentFormScreenState extends State<IncidentFormScreen> {
   bool _isLocating = false;
   IncidentModel? _incident;
   File? _image;
+  ZoneModel? _detectedZone; // Zona detectada automáticamente según la ubicación
   final ImagePicker _picker = ImagePicker();
   final List<String> categories = [
     'Robo',
@@ -104,6 +108,18 @@ class _IncidentFormScreenState extends State<IncidentFormScreen> {
         _lngController.text = position.longitude.toString();
       });
 
+      // Detección automática de zona según la ubicación obtenida.
+      final zoneProvider = context.read<ZoneProvider>();
+      if (zoneProvider.zones.isEmpty) {
+        await zoneProvider.loadZones();
+      }
+      final zone = GeoUtils.findZoneFor(
+        position.latitude,
+        position.longitude,
+        zoneProvider.zones,
+      );
+      if (mounted) setState(() => _detectedZone = zone);
+
       try {
         final address = await _geocodingService.reverseGeocode(
           latitude: position.latitude,
@@ -165,6 +181,12 @@ class _IncidentFormScreenState extends State<IncidentFormScreen> {
       // Luego aquí guardaremos la URL
       photoUrl: _incident?.photoUrl,
 
+      //Direccion aproximada
+      address: _addressController.text.trim().isEmpty
+      ? null
+      : _addressController.text.trim(),
+
+      zoneId: _detectedZone?.id ?? _incident?.zoneId,
       createdAt:
           _incident?.createdAt ??
               DateTime.now(),
@@ -338,6 +360,21 @@ class _IncidentFormScreenState extends State<IncidentFormScreen> {
                     : const Icon(Icons.my_location),
                 label: Text(_isLocating ? 'Obteniendo ubicación...' : 'Usar mi ubicación actual'),
               ),
+              const SizedBox(height: 8),
+              if (_latController.text.isNotEmpty)
+                Text(
+                  _detectedZone != null
+                      ? 'Zona detectada: ${_detectedZone!.name} '
+                        '(Riesgo: ${_detectedZone!.riskLevel})'
+                      : 'Esta ubicación no cae dentro de ninguna zona registrada.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: _detectedZone != null
+                        ? AppColors.darkBlue
+                        : Colors.grey.shade600,
+                  ),
+                ),
+
               const SizedBox(height: 30),
               FilledButton(
                 onPressed: provider.isLoading ? null : _save,

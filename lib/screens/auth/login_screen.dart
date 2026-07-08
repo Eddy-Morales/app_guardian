@@ -66,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       'assets/logo.png',
                       width: 96,
                       height: 96,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.contain,
                       // Si el asset no se encuentra (ej. falta ejecutar
                       // `flutter pub get` tras agregar la imagen), mostramos
                       // el ícono anterior como respaldo en vez de romper la UI.

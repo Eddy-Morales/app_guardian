@@ -68,7 +68,10 @@ class AuthRepository {
   // que permite al usuario definir una nueva contraseña.
   Future<void> resetPasswordForEmail(String email) async {
     try {
-      await _supabase.auth.resetPasswordForEmail(email);
+      await _supabase.auth.resetPasswordForEmail(
+        email,
+        redirectTo: 'guardianapp://reset-callback/',
+      );
     } catch (e) {
       throw Exception('Error al enviar el correo de recuperación: $e');
     }

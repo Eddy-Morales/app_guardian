@@ -40,20 +40,22 @@ class IncidentDetailScreen extends StatelessWidget {
         title: Text(
           'Incidente: ${incident.category}',
         ),
+      actions: canEdit
+            ? [
+                IconButton(
+                  tooltip: 'Editar incidente',
+                  icon: const Icon(Icons.edit),
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/incident-form',
+                      arguments: incident,
+                    );
+                  },
+                ),
+              ]
+            : null,
       ),
-      floatingActionButton: canEdit
-          ? FloatingActionButton(
-            backgroundColor: AppColors.darkBlue,
-            child: const Icon(Icons.edit),
-            onPressed:(){
-              Navigator.pushNamed(
-                context,
-                '/incident-form',
-                arguments: incident,
-              );
-            }
-          )
-        : null,
 
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

@@ -6,7 +6,7 @@ import '../config/theme.dart';
 import '../providers/incident_provider.dart';
 import '../services/location_service.dart';
 import '../utils/category_utils.dart';
-import 'incidents/incident_detail_screen.dart';
+import '../screens/incidents/incident_detail_screen.dart';
 
 /// Mapa interactivo (Google Maps) que muestra:
 /// - La ubicación actual del usuario.

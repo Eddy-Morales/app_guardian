@@ -8,6 +8,7 @@ class IncidentModel {
   final String? photoUrl;
   final DateTime createdAt;
   final String? address;
+  final String? zoneId; // Nueva propiedad para almacenar la zona asignada
 
 
   IncidentModel({
@@ -20,6 +21,7 @@ class IncidentModel {
     this.photoUrl,
     required this.createdAt,
     this.address,
+    this.zoneId,
   });
 
   factory IncidentModel.fromMap(Map<String, dynamic> map) {
@@ -32,6 +34,7 @@ class IncidentModel {
       lng: (map['lng'] as num).toDouble(),
       address: map['address'] as String?,
       photoUrl: map['photo_url'] as String?,
+      zoneId: map['zone_id'] as String?,
       createdAt: map['created_at'] != null
           ? DateTime.parse(map['created_at'])
           : DateTime.now(),
@@ -47,6 +50,7 @@ class IncidentModel {
       'lng': lng,
       'photo_url': photoUrl,
       'address': address,
+      'zone_id': zoneId,
     };
   }
 }
