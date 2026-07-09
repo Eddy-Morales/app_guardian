@@ -34,9 +34,47 @@ class AuthRepository {
         email: email,
         password: password,
       );
+    } on AuthException catch (e) {
+      throw Exception(_translateAuthError(e.message));
     } catch (e) {
-      throw Exception('Error al iniciar sesión: $e');
+      throw Exception('Ocurrió un error inesperado. Intenta de nuevo.');
     }
+  }
+
+  /// Traduce los mensajes de error de Supabase Auth (en inglés) a mensajes
+  /// claros en español para el usuario final.
+  String _translateAuthError(String message) {
+    final msg = message.toLowerCase();
+
+    if (msg.contains('invalid login credentials') ||
+        msg.contains('invalid credentials') ||
+        msg.contains('wrong password') ||
+        msg.contains('invalid password')) {
+      return 'Correo o contraseña incorrectos.';
+    }
+
+    if (msg.contains('user not found') ||
+        msg.contains('no user found') ||
+        msg.contains('email not found')) {
+      return 'No existe ninguna cuenta con ese correo.';
+    }
+
+    if (msg.contains('email not confirmed')) {
+      return 'Debes confirmar tu correo antes de iniciar sesión.';
+    }
+
+    if (msg.contains('too many requests') ||
+        msg.contains('rate limit') ||
+        msg.contains('over_email_send_rate_limit')) {
+      return 'Demasiados intentos. Espera un momento e inténtalo de nuevo.';
+    }
+
+    if (msg.contains('network') || msg.contains('connection')) {
+      return 'Sin conexión a internet. Verifica tu red e intenta de nuevo.';
+    }
+
+    // Si no reconocemos el error, devolvemos el original para no perder info.
+    return message;
   }
 
   // Obtener perfil

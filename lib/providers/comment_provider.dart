@@ -29,8 +29,34 @@ class CommentProvider extends ChangeNotifier {
     }
   }
 
+  // Editar el mensaje de un comentario existente
+  Future<String?> editComment(String commentId, String newMessage) async {
+    _setLoading(true);
+    try {
+      await _commentRepository.updateComment(commentId, newMessage);
+      return null;
+    } catch (e) {
+      return e.toString().replaceAll('Exception: ', '');
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Eliminar un comentario por su ID
+  Future<String?> removeComment(String commentId) async {
+    _setLoading(true);
+    try {
+      await _commentRepository.deleteComment(commentId);
+      return null;
+    } catch (e) {
+      return e.toString().replaceAll('Exception: ', '');
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
   }
-}
+}

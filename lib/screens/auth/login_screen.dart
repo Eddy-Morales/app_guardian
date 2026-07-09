@@ -21,6 +21,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
+  /// Mensaje de error proveniente del servidor (credenciales incorrectas,
+  /// usuario inexistente, etc.). Se limpia cada vez que el usuario
+  /// modifica algún campo.
+  String? _authError;
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -28,7 +33,16 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  /// Limpia el banner de error cuando el usuario empieza a corregir
+  /// su entrada, para no dejar un mensaje obsoleto en pantalla.
+  void _clearError() {
+    if (_authError != null) setState(() => _authError = null);
+  }
+
   Future<void> _submit() async {
+    // Limpia error anterior antes de un nuevo intento
+    setState(() => _authError = null);
+
     if (!_formKey.currentState!.validate()) return;
 
     final authProvider = context.read<AuthProvider>();
@@ -40,9 +54,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error), backgroundColor: AppColors.alertRed),
-      );
+      // Muestra el error dentro del formulario (más visible y permanente
+      // que un SnackBar, que desaparece en segundos).
+      setState(() => _authError = error);
     }
   }
 
@@ -60,6 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // ── Logo ─────────────────────────────────────────────────
                   ClipRRect(
                     borderRadius: BorderRadius.circular(20),
                     child: Image.asset(
@@ -67,9 +82,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: 96,
                       height: 96,
                       fit: BoxFit.contain,
-                      // Si el asset no se encuentra (ej. falta ejecutar
-                      // `flutter pub get` tras agregar la imagen), mostramos
-                      // el ícono anterior como respaldo en vez de romper la UI.
                       errorBuilder: (context, error, stackTrace) => const Icon(
                         Icons.shield,
                         size: 72,
@@ -78,6 +90,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
+
+                  // ── Título ────────────────────────────────────────────────
                   const Text(
                     'Guardian',
                     textAlign: TextAlign.center,
@@ -93,11 +107,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(color: AppColors.gray),
                   ),
                   const SizedBox(height: 32),
+
+                  // ── Campos ────────────────────────────────────────────────
                   CustomTextField(
                     controller: _emailController,
                     label: 'Correo electrónico',
                     icon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
+                    onChanged: (_) => _clearError(),
                     validator: (val) => val == null || !val.contains('@')
                         ? 'Ingresa un correo válido'
                         : null,
@@ -108,6 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     label: 'Contraseña',
                     icon: Icons.lock_outline,
                     obscureText: _obscurePassword,
+                    onChanged: (_) => _clearError(),
                     suffixIcon: IconButton(
                       icon: Icon(_obscurePassword
                           ? Icons.visibility_outlined
@@ -119,17 +137,55 @@ class _LoginScreenState extends State<LoginScreen> {
                         ? 'La contraseña debe tener al menos 6 caracteres'
                         : null,
                   ),
+
+                  // ── Banner de error de autenticación ──────────────────────
+                  // Solo se muestra cuando el servidor devuelve un error
+                  // (credenciales incorrectas, usuario no encontrado, etc.).
+                  if (_authError != null) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: AppColors.alertRed.withOpacity(0.08),
+                        border: Border.all(
+                            color: AppColors.alertRed.withOpacity(0.5)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.error_outline,
+                              color: AppColors.alertRed, size: 20),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              _authError!,
+                              style: const TextStyle(
+                                color: AppColors.alertRed,
+                                fontSize: 13.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+
+                  // ── Olvidé contraseña ─────────────────────────────────────
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+                        MaterialPageRoute(
+                            builder: (_) => const ForgotPasswordScreen()),
                       ),
                       child: const Text('¿Olvidaste tu contraseña?'),
                     ),
                   ),
-                  const SizedBox(height: 8),
+
+                  // ── Botón de ingreso ──────────────────────────────────────
                   authProvider.isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : FilledButton(
@@ -137,10 +193,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: const Text('Iniciar sesión'),
                         ),
                   const SizedBox(height: 16),
+
+                  // ── Registro ──────────────────────────────────────────────
                   TextButton(
                     onPressed: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                      MaterialPageRoute(
+                          builder: (_) => const RegisterScreen()),
                     ),
                     child: const Text('¿No tienes cuenta? Regístrate aquí'),
                   ),
