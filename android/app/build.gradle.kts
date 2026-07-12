@@ -1,8 +1,20 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+// Carga las claves privadas desde android/local.properties (no versionado).
+// Ahí debe existir la línea: MAPS_API_KEY=tu-clave-real
+val secretsProperties = Properties()
+val secretsFile = rootProject.file("local.properties")
+if (secretsFile.exists()) {
+    secretsProperties.load(FileInputStream(secretsFile))
+}
+val mapsApiKey: String = secretsProperties.getProperty("MAPS_API_KEY") ?: ""
 
 android {
     namespace = "com.example.guardia_app"
@@ -23,6 +35,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
     buildTypes {

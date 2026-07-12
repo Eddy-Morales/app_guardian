@@ -1,0 +1,7 @@
+# Copia este archivo como "local.properties" (en esta misma carpeta android/)
+# y agrega tu clave real. Ese archivo ya está en .gitignore por defecto.
+#
+# Flutter suele agregar aquí también sdk.dir y flutter.sdk automáticamente,
+# no los borres si ya existen.
+
+MAPS_API_KEY=tu-google-maps-api-key-aqui

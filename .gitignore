@@ -1,3 +1,8 @@
+# Variables de entorno / claves privadas — NUNCA subir a git
+.env
+.env.*
+!.env.example
+
 # Miscellaneous
 *.class
 *.log

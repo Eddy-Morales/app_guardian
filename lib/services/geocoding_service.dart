@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Excepción de dominio para errores al consumir la API externa.
 class GeocodingException implements Exception {
@@ -67,9 +68,6 @@ class GeocodingException implements Exception {
 ///   entendible, para que la UI pueda mostrarlo directamente sin tener
 ///   que interpretar códigos internos de HTTP o de la API.
 class GeocodingService {
-  /// Reemplaza por tu clave real de Google Cloud (Geocoding API habilitada).
-  static const String _apiKey = 'AIzaSyBvjIfVNOYFGJPh9besuL_kOULFcFzts8M';
-
   static const String _baseUrl =
       'https://maps.googleapis.com/maps/api/geocode/json';
 
@@ -77,8 +75,15 @@ class GeocodingService {
     required double latitude,
     required double longitude,
   }) async {
+    final apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'];
+    if (apiKey == null || apiKey.isEmpty) {
+      throw GeocodingException(
+        'Falta GOOGLE_MAPS_API_KEY en el archivo .env.',
+      );
+    }
+
     final uri = Uri.parse(
-      '$_baseUrl?latlng=$latitude,$longitude&key=$_apiKey&language=es',
+      '$_baseUrl?latlng=$latitude,$longitude&key=$apiKey&language=es',
     );
 
     try {
@@ -88,6 +93,8 @@ class GeocodingService {
           'La solicitud de dirección tardó demasiado. Verifica tu conexión.',
         ),
       );
+      print("HTTP: ${response.statusCode}");
+      print(response.body);
 
       if (response.statusCode != 200) {
         throw GeocodingException(
