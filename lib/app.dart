@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:guardia_app/screens/users/user_list_screen.dart';
 import 'package:provider/provider.dart';
+import 'models/user_profile.dart';
 import 'providers/auth_provider.dart';
 import 'navigation/nav_keys.dart';
 import 'screens/auth/login_screen.dart';
@@ -25,59 +26,13 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Escuchamos activamente al AuthProvider. 
+    // Escuchamos activamente al AuthProvider.
     // Cuando '_currentUserProfile' cambia, este build SE EJECUTA otra vez obligatoriamente.
     final authProvider = context.watch<AuthProvider>();
     final profile = authProvider.currentUserProfile;
 
-    // 1. Si está cargando el estado inicial, mostramos splash/loader
-    if (authProvider.isLoading && profile == null) {
-      return MaterialApp(
-        navigatorKey: rootNavigatorKey,
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        ),
-      );
-    }
+    final Widget home = _resolveHome(authProvider, profile);
 
-    // 2. Si no hay perfil, directo al Login
-    if (profile == null) {
-      return MaterialApp(
-        navigatorKey: rootNavigatorKey,
-        debugShowCheckedModeBanner: false,
-        home: LoginScreen(),
-      );
-    }
-
-    // 3. Normalizamos el rol limpiando espacios y pasándolo a minúsculas
-    final stringRol = profile.role.toString().toLowerCase().trim();
-
-    // Diagnóstico visual en consola para asegurar qué lee MainApp
-    debugPrint("MainApp evaluando redirección para el rol normalizado: '$stringRol'");
-
-    Widget pantallaDestino;
-
-    switch (stringRol) {
-      case 'admin':
-        pantallaDestino = const HomeAdminScreen();
-        break;
-      case 'client':
-      case 'cliente':
-        pantallaDestino = const HomeClientScreen();
-        break;
-      default:
-        pantallaDestino = Scaffold(
-          body: Center(
-            child: Text(
-              'Error: El rol "$stringRol" no tiene una pantalla asignada.',
-              style: const TextStyle(color: Colors.red, fontSize: 16),
-            ),
-          ),
-        );
-    }
-
-    // Retornamos la app con la pantalla destino correspondiente
     return MaterialApp(
       navigatorKey: rootNavigatorKey,
       debugShowCheckedModeBanner: false,
@@ -100,12 +55,12 @@ class MainApp extends StatelessWidget {
           foregroundColor: Colors.white, // Texto blanco en la AppBar
         ),
       ),
-      home: pantallaDestino,
+      home: home,
       routes: {
         //'/users': (context) => const UsersScreen(),
         '/maps': (context) => const MapScreen(),
         '/reports': (context) => const ReportsScreen(),
-        
+
         // Rutas del flujo de Incidentes que enlazamos previamente
         '/incidents': (context) => const AdminIncidentScreen(), // Panel secundario de incidentes
         '/incident-list': (context) => const IncidentListScreen(),
@@ -119,5 +74,42 @@ class MainApp extends StatelessWidget {
         '/zones': (context) => const AdminZonesScreen()
       },
     );
+  }
+
+  Widget _resolveHome(AuthProvider authProvider, UserProfile? profile) {
+    // 1. Si está cargando el estado inicial (arranque de la app)
+    if (authProvider.isInitializing) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // 2. Si no hay perfil, directo al Login
+    if (profile == null) {
+      return const LoginScreen();
+    }
+
+    // 3. Normalizamos el rol limpiando espacios y pasándolo a minúsculas
+    final stringRol = profile.role.toString().toLowerCase().trim();
+
+    // Diagnóstico visual en consola para asegurar qué lee MainApp
+    debugPrint("MainApp evaluando redirección para el rol normalizado: '$stringRol'");
+
+    switch (stringRol) {
+      case 'admin':
+        return const HomeAdminScreen();
+      case 'client':
+      case 'cliente':
+        return const HomeClientScreen();
+      default:
+        return Scaffold(
+          body: Center(
+            child: Text(
+              'Error: El rol "$stringRol" no tiene una pantalla asignada.',
+              style: const TextStyle(color: Colors.red, fontSize: 16),
+            ),
+          ),
+        );
+    }
   }
 }

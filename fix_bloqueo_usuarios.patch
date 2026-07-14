@@ -1,0 +1,48 @@
+diff --git a/lib/providers/auth_provider.dart b/lib/providers/auth_provider.dart
+index 151784a..aee7c21 100644
+--- a/lib/providers/auth_provider.dart
++++ b/lib/providers/auth_provider.dart
+@@ -17,8 +17,18 @@ class AuthProvider extends ChangeNotifier {
+   // Verifica sesión existente
+   Future<void> checkCurrentUser() async {
+     _setLoading(true);
+-    _currentUserProfile =
+-        await _authRepository.getUserProfile();
++
++    final profile = await _authRepository.getUserProfile();
++
++    if (profile != null && profile.blocked) {
++      // El usuario tiene una sesión activa pero fue bloqueado
++      // por un administrador: cerramos la sesión automáticamente.
++      await _authRepository.signOut();
++      _currentUserProfile = null;
++    } else {
++      _currentUserProfile = profile;
++    }
++
+     _setLoading(false);
+   }
+ 
+@@ -63,9 +73,19 @@ class AuthProvider extends ChangeNotifier {
+         password: password,
+       );
+ 
+-      _currentUserProfile =
+-          await _authRepository.getUserProfile();
+-          notifyListeners();
++      final profile = await _authRepository.getUserProfile();
++
++      if (profile != null && profile.blocked) {
++        // Credenciales correctas, pero la cuenta está bloqueada:
++        // cerramos la sesión inmediatamente y no dejamos entrar.
++        await _authRepository.signOut();
++        _currentUserProfile = null;
++        return 'Tu cuenta ha sido bloqueada. '
++            'Contacta a un administrador para más información.';
++      }
++
++      _currentUserProfile = profile;
++      notifyListeners();
+ 
+       return null;
+     } catch (e) {
