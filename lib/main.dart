@@ -3,6 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+//PAra iniciar firebase
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
 import 'app.dart';
 
 // Repositorios
@@ -24,6 +28,12 @@ import 'screens/auth/reset_password_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializar Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  debugPrint("Firebase conectado correctamente");
 
   // Carga las variables de entorno desde el archivo .env (no versionado).
   await dotenv.load(fileName: '.env');

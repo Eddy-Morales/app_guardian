@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1008251911070",
+    "project_id": "ecuguardian",
+    "storage_bucket": "ecuguardian.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1008251911070:android:827a8a3910d3346ebab48f",
+        "android_client_info": {
+          "package_name": "com.example.guardia_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBx6BLv1XFOboAOw5PLW5nBMtIv-eQGv0Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
