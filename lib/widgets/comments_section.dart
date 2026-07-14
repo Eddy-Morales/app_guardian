@@ -25,6 +25,15 @@ class _CommentsSectionState extends State<CommentsSection> {
   final _messageController = TextEditingController();
   bool _sending = false;
 
+  late final Stream<List<CommentModel>> _commentsStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _commentsStream =
+        context.read<CommentProvider>().watchComments(widget.incidentId);
+  }
+
   @override
   void dispose() {
     _messageController.dispose();
@@ -67,46 +76,18 @@ class _CommentsSectionState extends State<CommentsSection> {
   /// Abre un diálogo con un campo de texto pre-llenado con el mensaje
   /// actual. Guarda el cambio solo si el texto es diferente y no está vacío.
   Future<void> _showEditDialog(CommentModel comment) async {
-    final editController = TextEditingController(text: comment.message);
-
-    final confirmed = await showDialog<bool>(
+    final newText = await showDialog<String>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Editar comentario'),
-        content: TextField(
-          controller: editController,
-          autofocus: true,
-          maxLines: 4,
-          minLines: 1,
-          decoration: const InputDecoration(
-            hintText: 'Escribe tu comentario...',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Guardar'),
-          ),
-        ],
-      ),
+      builder: (ctx) => _EditCommentDialog(initialMessage: comment.message),
     );
-
-    // ⚠️ Leer el texto ANTES de dispose, o el valor se pierde.
-    final newText = editController.text.trim();
-    editController.dispose();
-
-    if (!mounted || confirmed != true) return;
+ 
+    if (!mounted || newText == null) return;
     if (newText.isEmpty || newText == comment.message) return;
-
+ 
     final error = await context
         .read<CommentProvider>()
         .editComment(comment.id, newText);
-
+ 
     if (!mounted) return;
     if (error != null) _showError(error);
   }
@@ -173,12 +154,10 @@ class _CommentsSectionState extends State<CommentsSection> {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         const SizedBox(height: 8),
-
+ 
         // Lista de comentarios en tiempo real
         StreamBuilder<List<CommentModel>>(
-          stream: context
-              .read<CommentProvider>()
-              .watchComments(widget.incidentId),
+          stream: _commentsStream,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Padding(
@@ -186,7 +165,7 @@ class _CommentsSectionState extends State<CommentsSection> {
                 child: Center(child: CircularProgressIndicator()),
               );
             }
-
+ 
             if (snapshot.hasError) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -196,9 +175,9 @@ class _CommentsSectionState extends State<CommentsSection> {
                 ),
               );
             }
-
+ 
             final comments = snapshot.data ?? [];
-
+ 
             if (comments.isEmpty) {
               return const Padding(
                 padding: EdgeInsets.symmetric(vertical: 12),
@@ -208,7 +187,7 @@ class _CommentsSectionState extends State<CommentsSection> {
                 ),
               );
             }
-
+ 
             return Column(
               children: comments.map((c) {
                 final isOwn = c.userId == currentUserId;
@@ -225,9 +204,9 @@ class _CommentsSectionState extends State<CommentsSection> {
             );
           },
         ),
-
+ 
         const SizedBox(height: 8),
-
+ 
         // Campo de texto para escribir un nuevo comentario
         Row(
           children: [
@@ -253,6 +232,55 @@ class _CommentsSectionState extends State<CommentsSection> {
                   : const Icon(Icons.send),
             ),
           ],
+        ),
+      ],
+    );
+  }
+}
+
+// Diálogo para editar el mensaje de un comentario existente.
+class _EditCommentDialog extends StatefulWidget {
+  final String initialMessage;
+  const _EditCommentDialog({required this.initialMessage});
+  @override
+  State<_EditCommentDialog> createState() => _EditCommentDialogState();
+}
+class _EditCommentDialogState extends State<_EditCommentDialog> {
+  late final TextEditingController _controller;
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialMessage);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Editar comentario'),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        maxLines: 4,
+        minLines: 1,
+        decoration: const InputDecoration(
+          hintText: 'Escribe tu comentario...',
+          border: OutlineInputBorder(),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, null),
+          child: const Text('Cancelar'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, _controller.text.trim()),
+          child: const Text('Guardar'),
         ),
       ],
     );
