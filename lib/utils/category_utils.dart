@@ -13,6 +13,7 @@ class CategoryUtils {
     'Vandalismo',
     'Persona sospechosa',
     'Incendio',
+    'Violencia',
     'Otro',
   ];
 
@@ -22,6 +23,7 @@ class CategoryUtils {
     'Vandalismo': Color(0xFF7B1FA2),
     'Persona sospechosa': Color(0xFF455A64),
     'Incendio': Color(0xFFE64A19),
+    'Violencia': Color(0xFFC2185B),
     'Otro': Color(0xFF616161),
   };
 
@@ -31,6 +33,7 @@ class CategoryUtils {
     'Vandalismo': Icons.broken_image,
     'Persona sospechosa': Icons.visibility,
     'Incendio': Icons.local_fire_department,
+    'Violencia': Icons.report_problem,
     'Otro': Icons.report,
   };
 
@@ -54,6 +57,10 @@ class CategoryUtils {
         return 200;    // azul grisáceo
       case 'Incendio':
         return 15;     // rojo-naranja
+      case 'Violencia':
+        return 330;    // rosa/magenta
+      case 'Otro':
+        return 210;    // gris
       default:
         return 0;
     }

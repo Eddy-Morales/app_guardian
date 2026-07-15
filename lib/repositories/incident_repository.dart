@@ -26,7 +26,7 @@ class IncidentRepository {
       // Si recibimos un searchText, filtramos la consulta
       if (searchText != null && searchText.isNotEmpty) {
         query = query.or(
-          'title.ilike.%$searchText%,description.ilike.%$searchText%',
+          'address.ilike.%$searchText%,description.ilike.%$searchText%',
         );
       }
       

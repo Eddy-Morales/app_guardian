@@ -11,10 +11,6 @@ class AuthProvider extends ChangeNotifier {
   UserProfile? _currentUserProfile;
   bool _isLoading = false;
   // Solo es true mientras se revisa si ya existía una sesión guardada,
-  // al arrancar la app. Es independiente de _isLoading (que se usa para
-  // el spinner del botón de login/registro) para que MainApp no tenga
-  // que reconstruir toda la MaterialApp cada vez que se envía el
-  // formulario de login.
   bool _isInitializing = true;
 
   UserProfile? get currentUserProfile => _currentUserProfile;
@@ -60,9 +56,7 @@ class AuthProvider extends ChangeNotifier {
           notifyListeners();
       return null;
     } catch (e) {
-      return e
-          .toString()
-          .replaceAll('Exception: ', '');
+      return _friendlyAuthError(e);
     } finally {
       _setLoading(false);
     }

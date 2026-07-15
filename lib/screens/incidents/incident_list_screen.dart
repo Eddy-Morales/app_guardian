@@ -47,7 +47,7 @@ class _IncidentListScreenState extends State<IncidentListScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Buscar por título o descripción...',
+                hintText: 'Buscar por categoría o descripción...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(

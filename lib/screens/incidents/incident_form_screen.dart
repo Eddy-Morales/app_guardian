@@ -14,26 +14,22 @@ import '../../widgets/custom_text_field.dart';
 
 import '../../models/zone_model.dart';
 import '../../providers/zone_provider.dart';
+import '../../utils/category_utils.dart';
 import '../../utils/geo_utils.dart';
 
 class IncidentFormScreen extends StatefulWidget {
   const IncidentFormScreen({super.key});
 
   @override
-  State<IncidentFormScreen> createState() =>
-      _IncidentFormScreenState();
+  State<IncidentFormScreen> createState() => _IncidentFormScreenState();
 }
 
 class _IncidentFormScreenState extends State<IncidentFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _descriptionController =
-      TextEditingController();
-  final _latController =
-      TextEditingController();
-  final _lngController =
-      TextEditingController();
-  final _addressController =
-      TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _latController = TextEditingController();
+  final _lngController = TextEditingController();
+  final _addressController = TextEditingController();
   final LocationService _locationService = LocationService();
   final GeocodingService _geocodingService = GeocodingService();
 
@@ -44,22 +40,14 @@ class _IncidentFormScreenState extends State<IncidentFormScreen> {
   File? _image;
   ZoneModel? _detectedZone; // Zona detectada automáticamente según la ubicación
   final ImagePicker _picker = ImagePicker();
-  final List<String> categories = [
-    'Robo',
-    'Accidente',
-    'Incendio',
-    'Violencia',
-    'Emergencia',
-    'Otro',
-  ];
+  List<String> get categories => CategoryUtils.all;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
     if (_incident == null) {
-      final args =
-          ModalRoute.of(context)?.settings.arguments;
+      final args = ModalRoute.of(context)?.settings.arguments;
 
       if (args != null && args is IncidentModel) {
         _incident = args;
@@ -67,19 +55,13 @@ class _IncidentFormScreenState extends State<IncidentFormScreen> {
 
         _selectedCategory = _incident!.category;
 
-        _descriptionController.text =
-            _incident!.description;
+        _descriptionController.text = _incident!.description;
 
-        _latController.text =
-            _incident!.lat.toString();
+        _latController.text = _incident!.lat.toString();
 
-        _lngController.text =
-            _incident!.lng.toString();
-        _addressController.text =
-            _incident!.address ?? '';
-          
+        _lngController.text = _incident!.lng.toString();
+        _addressController.text = _incident!.address ?? '';
       }
-
     } else {
       // Modo creación: obtenemos la ubicación automáticamente al abrir
       // el formulario.
@@ -149,6 +131,7 @@ class _IncidentFormScreenState extends State<IncidentFormScreen> {
       });
     }
   }
+
   void _showSnack(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -183,13 +166,11 @@ class _IncidentFormScreenState extends State<IncidentFormScreen> {
 
       //Direccion aproximada
       address: _addressController.text.trim().isEmpty
-      ? null
-      : _addressController.text.trim(),
+          ? null
+          : _addressController.text.trim(),
 
       zoneId: _detectedZone?.id ?? _incident?.zoneId,
-      createdAt:
-          _incident?.createdAt ??
-              DateTime.now(),
+      createdAt: _incident?.createdAt ?? DateTime.now(),
     );
 
     final error = _isEditing
@@ -208,15 +189,10 @@ class _IncidentFormScreenState extends State<IncidentFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     final provider = context.watch<IncidentProvider>();
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          _isEditing
-              ? 'Editar Incidente'
-              : 'Nuevo Incidente',
-        ),
+        title: Text(_isEditing ? 'Editar Incidente' : 'Nuevo Incidente'),
       ),
 
       body: SingleChildScrollView(
@@ -233,18 +209,11 @@ class _IncidentFormScreenState extends State<IncidentFormScreen> {
                   prefixIcon: Icon(Icons.category_outlined),
                 ),
                 items: categories
-                    .map(
-                      (e) =>
-                          DropdownMenuItem(
-                        value: e,
-                        child: Text(e),
-                      ),
-                    )
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                     .toList(),
                 onChanged: (value) {
                   setState(() {
-                    _selectedCategory =
-                        value;
+                    _selectedCategory = value;
                   });
                 },
                 validator: (value) {
@@ -258,20 +227,15 @@ class _IncidentFormScreenState extends State<IncidentFormScreen> {
               const SizedBox(height: 16),
 
               TextFormField(
-                controller:
-                    _descriptionController,
+                controller: _descriptionController,
                 maxLines: 4,
                 decoration: InputDecoration(
                   labelText: 'Descripción',
                   prefixIcon: Icon(Icons.description),
-                  border:
-                      OutlineInputBorder(),
+                  border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  if (value == null ||
-                      value
-                          .trim()
-                          .isEmpty) {
+                  if (value == null || value.trim().isEmpty) {
                     return 'Ingrese una descripción';
                   }
                   return null;
@@ -282,11 +246,7 @@ class _IncidentFormScreenState extends State<IncidentFormScreen> {
 
               const Text(
                 "Fotografía",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight:
-                      FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
 
               const SizedBox(height: 10),
@@ -294,11 +254,8 @@ class _IncidentFormScreenState extends State<IncidentFormScreen> {
               Container(
                 height: 220,
                 decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.grey,
-                  ),
-                  borderRadius:
-                      BorderRadius.circular(10),
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: _image != null
                     ? ClipRRect(
@@ -310,21 +267,21 @@ class _IncidentFormScreenState extends State<IncidentFormScreen> {
                         ),
                       )
                     : _incident?.photoUrl != null
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.network(
-                              _incident!.photoUrl!,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                            ),
-                          )
-                        : const Center(
-                            child: Icon(
-                              Icons.camera_alt,
-                              size: 80,
-                              color: Colors.grey,
-                            ),
-                          ),
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.network(
+                          _incident!.photoUrl!,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                        ),
+                      )
+                    : const Center(
+                        child: Icon(
+                          Icons.camera_alt,
+                          size: 80,
+                          color: Colors.grey,
+                        ),
+                      ),
               ),
 
               const SizedBox(height: 10),
@@ -337,7 +294,10 @@ class _IncidentFormScreenState extends State<IncidentFormScreen> {
 
               const SizedBox(height: 25),
 
-              const Text('Ubicación', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const Text(
+                'Ubicación',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
               const SizedBox(height: 10),
               CustomTextField(
                 controller: _addressController,
@@ -346,7 +306,8 @@ class _IncidentFormScreenState extends State<IncidentFormScreen> {
                 enabled: false,
               ),
               const SizedBox(height: 8),
-              if (_latController.text.isNotEmpty && _lngController.text.isNotEmpty)
+              if (_latController.text.isNotEmpty &&
+                  _lngController.text.isNotEmpty)
                 Text(
                   'Lat: ${_latController.text}  Lng: ${_lngController.text}',
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
@@ -356,16 +317,23 @@ class _IncidentFormScreenState extends State<IncidentFormScreen> {
                 onPressed: _isLocating ? null : _fetchLocation,
                 icon: _isLocating
                     ? const SizedBox(
-                        width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
                     : const Icon(Icons.my_location),
-                label: Text(_isLocating ? 'Obteniendo ubicación...' : 'Usar mi ubicación actual'),
+                label: Text(
+                  _isLocating
+                      ? 'Obteniendo ubicación...'
+                      : 'Usar mi ubicación actual',
+                ),
               ),
               const SizedBox(height: 8),
               if (_latController.text.isNotEmpty)
                 Text(
                   _detectedZone != null
                       ? 'Zona detectada: ${_detectedZone!.name} '
-                        '(Riesgo: ${_detectedZone!.riskLevel})'
+                            '(Riesgo: ${_detectedZone!.riskLevel})'
                       : 'Esta ubicación no cae dentro de ninguna zona registrada.',
                   style: TextStyle(
                     fontSize: 12,
@@ -380,8 +348,13 @@ class _IncidentFormScreenState extends State<IncidentFormScreen> {
                 onPressed: provider.isLoading ? null : _save,
                 child: provider.isLoading
                     ? const SizedBox(
-                        height: 20, width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
                     : Text(_isEditing ? 'Actualizar' : 'Registrar'),
               ),
             ],
