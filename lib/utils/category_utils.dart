@@ -54,13 +54,13 @@ class CategoryUtils {
       case 'Vandalismo':
         return 270;    // morado
       case 'Persona sospechosa':
-        return 200;    // azul grisáceo
+        return 180;    // azul grisáceo
       case 'Incendio':
         return 15;     // rojo-naranja
       case 'Violencia':
-        return 330;    // rosa/magenta
+        return 300;    // magenta 
       case 'Otro':
-        return 210;    // gris
+        return 60;     // amarillo 
       default:
         return 0;
     }
