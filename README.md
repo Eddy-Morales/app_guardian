@@ -2,7 +2,6 @@
 
 <p align="center">
   <img width="30%" alt="Logo EcuGuardian" src="https://github.com/user-attachments/assets/21d5c4fe-b825-4b91-96ee-b61a5cb363db" />
-" />
 </p>
 
 Aplicación móvil desarrollada en **Flutter** que permite a una comunidad reportar, visualizar y gestionar incidentes de seguridad (robos, accidentes, incendios, accidentes de tránsito, entre otros) utilizando evidencia fotográfica, ubicación GPS y mapas interactivos.
